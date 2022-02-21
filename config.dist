@@ -1,3 +1,0 @@
-parameters:
-  url: "http://api.fixer.io/%date%?base=%from_currency%&symbols=%to_currencies%"
-  redis_host:

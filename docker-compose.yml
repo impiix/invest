@@ -1,0 +1,77 @@
+version: '3.4'
+
+x-cache:
+  &cache
+  cache_from:
+    - php/8.0
+    - nginx/default
+
+services:
+  php:
+    image: php/8.1-v1
+
+    build:
+      context: ./
+
+      target: container_php
+      <<: *cache
+    environment:
+      # See https://docs.docker.com/docker-for-mac/networking/#i-want-to-connect-from-a-container-to-a-service-on-the-host
+      # See https://github.com/docker/for-linux/issues/264
+      # The `remote_host` below may optionally be replaced with `remote_connect_back`
+      XDEBUG_MODE: debug
+      XDEBUG_CONFIG: >-
+        discover_client_host=1
+        idekey=PHPSTORM
+        client_host=host.docker.internal
+        mode=debug
+        client_port=9003
+#                remote_host=host.docker.internal
+#        remote_enable=1
+#        remote_connect_back=1
+#         remote_port=9000
+        #
+         #       client_port=9003
+          #      idekey=PHPSTORM
+
+      # This should correspond to the server declared in PHPStorm `Preferences | Languages & Frameworks | PHP | Servers`
+      # Then PHPStorm will use the corresponding path mappings
+      PHP_IDE_CONFIG: serverName=api-platform
+    env_file:
+      - ./.env
+    # Comment out these volumes in production
+    volumes:
+      - ./:/srv/:rw
+      # If you develop on Linux, uncomment the following line to use a bind-mounted host directory instead
+     # - ./var:/srv/var:rw
+    dns:
+      - 8.8.8.8
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  redis:
+    image: redis:5-alpine
+    environment:
+      #- REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PASSWORD=YOUR_REDIS_PASSWORD
+    command: redis-server --appendonly yes
+    volumes:
+      - ../data/redis:/data
+    #networks:
+     # - internal_network
+    ports:
+      - "63790:6379"
+
+  api_new:
+    image: nginx/default3
+    build:
+      context: ./
+      target: container_nginx
+      <<: *cache
+    depends_on:
+      - php
+    # Comment out this volume in production
+    volumes:
+      - ./public:/srv/public:ro
+    ports:
+      - "8080:80"

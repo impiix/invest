@@ -7,6 +7,18 @@
            and uncomment the following Encore helpers to start using Symfony UX #}
         {% block stylesheets %}
             {#{{ encore_entry_link_tags('app') }}#}
+            <style>
+                .container {
+                    width: 100%;
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                }
+
+                .container .item {
+                    flex: 1;
+                }
+            </style>
         {% endblock %}
 
         {% block javascripts %}

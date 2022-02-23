@@ -8,6 +8,8 @@ class CalculatorService
 
     protected array $bank;
 
+    protected array $history;
+
     protected $changed = false;
 
     public function __construct(protected ?OutputService $outputService = null)
@@ -42,18 +44,14 @@ class CalculatorService
             'main' => $fromAmount
         ];
 
-        $this->output(sprintf("Bought %s of %s with %s\n", $toAmount, $currency, $fromAmount));
+        $this->addHistory(sprintf("Bought %s of %s with %s\n", $toAmount, $currency, $fromAmount));
 
         $i = 3;
     }
 
-    protected function output($output)
+    protected function addHistory(string $record)
     {
-        $this->outputService->output($output);
-        $this->outputService->outputArray($this->bank);
-
-
-        $this->outputService->output('');
+        $this->history[] = ['message' => $record, 'bank' => $this->bank];
     }
 
     protected function sell(string $currency, $fromAmount, $toAmount)
@@ -63,7 +61,6 @@ class CalculatorService
         $originalFromAmount = $fromAmount;
         for ($i = 0; $i < $count; $i++) {
             $record = $this->bank[$currency][$i];
-
 
             if ($fromAmount >= $record['native']) {
                 $fromAmount -= $record['native'];
@@ -90,17 +87,13 @@ class CalculatorService
 
         $this->bank[$currency] = array_values($this->bank[$currency]);
 
-        $this->output(sprintf("Sold %s of %s with %s and %s gain\n", $originalFromAmount, $currency, $originalToAmount, $toAmount));
+        $this->addHistory(sprintf("Sold %s of %s with %s and %s gain\n", $originalFromAmount, $currency, $originalToAmount, $toAmount));
 
         $i = 3;
     }
 
     /**
-     * @param int $startAmount
-     * @param string $dateDefinition
-     * @param string $currency
-     * @param int $backwardCheckDays
-     * @return float
+     * @todo old legacy function, refactor so it can be used again
      */
     public function simulate(int $startAmount, string $dateDefinition, string $currency, int $backwardCheckDays): float
     {
@@ -143,5 +136,10 @@ class CalculatorService
         }
 
         return $startAmount;
+    }
+
+    public function getHistory(): array
+    {
+        return $this->history;
     }
 }

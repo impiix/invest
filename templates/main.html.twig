@@ -4,4 +4,25 @@
     <input type="file" name="inputFile">
         <input type="submit">
     </form>
+    {% for row in history %}
+        <div style="color: gray">{{ row.message }}</div>
+        <div class="container">
+        {% for currency, data in row.bank %}
+            <div class="item">
+                <div>
+                    {{ currency }}
+                </div>
+                <div>
+                {% if data is iterable %}
+                    {% for record in data %}
+                        {{ record.native }}, {{ record.main }}<br>
+                    {% endfor %}
+                {% else %}
+                    {{ data }}
+                {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% endfor %}
 {% endblock %}

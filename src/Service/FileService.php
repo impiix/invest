@@ -16,7 +16,7 @@ class FileService
         $data = [];
         $path = $file->getRealPath();
         $handle = fopen($path, 'r');
-        while(($row = fgetcsv($handle, null, ';')) !== false) {
+        while (($row = fgetcsv($handle, null, ';')) !== false) {
             $data[] = $row;
         }
         $first = array_shift($data);

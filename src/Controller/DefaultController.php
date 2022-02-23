@@ -21,7 +21,7 @@ class DefaultController extends AbstractController
             $calculatorService->process(data: $data);
         }
 
-        $a = $this->render('main.html.twig');
+        $a = $this->render('main.html.twig', ['history' => $calculatorService->getHistory()]);
         return $a;
     }
 }
